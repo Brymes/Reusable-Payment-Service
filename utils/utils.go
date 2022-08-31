@@ -16,6 +16,8 @@ type APIResponse struct {
 	Data    interface{} `json:"data"`
 }
 
+type JsonMap map[string]interface{}
+
 func GenerateUniqueID(length int) (string, error) {
 	bytes := make([]byte, length)
 
@@ -34,6 +36,7 @@ func GenerateUniqueID(length int) (string, error) {
 
 func HandlePanic(response *APIResponse, logger *log.Logger) {
 	if err := recover(); err != nil {
+		logger.Println(err)
 		logger.Println(string(debug.Stack()))
 		response.Success, response.Code = false, 500
 		response.Message = fmt.Sprintf("%v", err)
