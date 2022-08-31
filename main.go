@@ -1,12 +1,13 @@
 package main
 
 import (
-	"App-Name/api"
-	"App-Name/config"
+	"Payment-Service/api"
+	"Payment-Service/config"
 )
 
 func init() {
 	config.InitDb()
+	config.InitServices()
 }
 
 func main() {
