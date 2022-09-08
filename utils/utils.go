@@ -18,27 +18,36 @@ type APIResponse struct {
 
 type JsonMap map[string]interface{}
 
-func GenerateUniqueID(length int) (string, error) {
+func GenerateUniqueID(length int) string {
 	bytes := make([]byte, length)
 
 	chars := "0123456789abcdefghijklmnopqrstuvwxyz"
 
 	if _, err := rand.Read(bytes); err != nil {
-		return "", err
+		panic("Internal Server Error whilst generating Reference")
 	}
 
 	for i, b := range bytes {
 		bytes[i] = chars[b%byte(len(chars))]
 	}
 
-	return string(bytes), nil
+	return string(bytes)
 }
 
-func HandlePanic(response *APIResponse, logger *log.Logger) {
+func HandlePanic(response *APIResponse, logger *log.Logger, customMessage string) {
 	if err := recover(); err != nil {
 		logger.Println(err)
 		logger.Println(string(debug.Stack()))
-		response.Success, response.Code = false, 500
-		response.Message = fmt.Sprintf("%v", err)
+
+		if response.Code < 400 {
+			response.Code = 500
+		}
+
+		response.Success = false
+		if customMessage != "" {
+			response.Message = customMessage
+		} else {
+			response.Message = fmt.Sprintf("%v", err)
+		}
 	}
 }
