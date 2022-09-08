@@ -9,8 +9,10 @@ import (
 )
 
 var (
-	SeerBitInstance services.SeerBit
+	SeerBitInstance  services.SeerBit
+	PaystackInstance services.Paystack
 )
+
 // FIle to Initialize Connetions to External Services
 
 func InitServices() {
@@ -19,11 +21,15 @@ func InitServices() {
 		wg    sync.WaitGroup
 	)
 
-	wg.Add(1)
+	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
 		count += InitSeerBit()
+	}()
+	go func() {
+		defer wg.Done()
+		count += InitPayStack()
 	}()
 
 	wg.Wait()
@@ -38,16 +44,40 @@ func InitSeerBit() int {
 		response          = utils.APIResponse{}
 		reqBuffer, logger = InitRequestLogger("SeerBit")
 	)
+	defer log.Println(reqBuffer, response.Message)
+
 	privateKey, publicKey := os.Getenv("SEERBIT_PRIVATE_KEY"), os.Getenv("SEERBIT_PUBLIC_KEY")
 	if privateKey == "" || publicKey == "" {
 		return 0
 	}
 	key := privateKey + "." + publicKey
 
-	SeerBitInstance.GenerateToken(key, &response, logger)
+	SeerBitInstance.Initialize(key, &response, logger)
 
 	if response.Success != true {
-		log.Println(reqBuffer, response.Message)
+		return 0
+	}
+
+	return 1
+}
+
+func InitPayStack() int {
+	var (
+		response          = utils.APIResponse{}
+		reqBuffer, logger = InitRequestLogger("SeerBit")
+	)
+	defer log.Println(reqBuffer, response.Message)
+
+	key := os.Getenv("PAYSTACK_KEY")
+
+	if key == "" {
+		logger.Println("Paystack Token not set")
+	} else {
+		PaystackInstance.Token = "Bearer " + key
+	}
+
+	PaystackInstance.Initialize(&response, logger)
+	if response.Success != true {
 		return 0
 	}
 
