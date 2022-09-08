@@ -39,6 +39,10 @@ func Server() {
 
 	router.POST("endpoint", EndPointName)
 
+	router.NoRoute(func(c *gin.Context) {
+		c.IndentedJSON(404, gin.H{"message": "Selected Service not found"})
+	})
+
 	port := os.Getenv("PORT")
 
 	if port == "" {

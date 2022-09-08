@@ -53,7 +53,10 @@ func (request RequestPayload) MakeRequest(response *APIResponse, logger *log.Log
 	}
 
 	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
+		err = Body.Close()
+		if err != nil {
+			panic(err)
+		}
 	}(resp.Body)
 
 	respBody, err := ioutil.ReadAll(resp.Body)
@@ -75,7 +78,10 @@ func (request RequestPayload) MakeRequest(response *APIResponse, logger *log.Log
 	switch resp.StatusCode {
 	case 200, 201:
 		break
-	case 400, 401, 403:
+	case 400:
+		response.Code = 400
+		panic("Bad Request to Payment Service")
+	case 401, 403:
 		logger.Println(fmt.Sprintf("Unauthorised Request to Payment Service: %v", resp.StatusCode))
 		panic("Unauthorised Request to Payment Service")
 	case 500, 501, 503:

@@ -1,4 +1,4 @@
-module App-Name
+module Payment-Service
 
 go 1.17
 
