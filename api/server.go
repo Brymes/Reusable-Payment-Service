@@ -21,23 +21,8 @@ func Server() {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	//JWT Middleware
-	/*	jwtMiddleware := JwtMiddleWareConfig()
-			errInit := jwtMiddleware.MiddlewareInit()
-
-			if errInit != nil {
-				log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
-			}
-
-		router.POST("/login", jwtMiddleware.LoginHandler)
-
-		auth := router.Group("/")
-
-		auth.Use(jwtMiddleware.MiddlewareFunc())
-		auth.POST("protectedEndpoint", protectedEndpoint)
-	*/
-
-	router.POST("endpoint", EndPointName)
+	router.POST("charge/paystack", GetPaymentLink)
+	router.POST("charge/seerbit", GetPaymentLink)
 
 	router.NoRoute(func(c *gin.Context) {
 		c.IndentedJSON(404, gin.H{"message": "Selected Service not found"})
