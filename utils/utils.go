@@ -37,7 +37,6 @@ func GenerateUniqueID(length int) string {
 func HandlePanic(response *APIResponse, logger *log.Logger, customMessage string) {
 	if err := recover(); err != nil {
 		logger.Println(err)
-		logger.Println(string(debug.Stack()))
 
 		if response.Code < 400 {
 			response.Code = 500
@@ -47,6 +46,7 @@ func HandlePanic(response *APIResponse, logger *log.Logger, customMessage string
 		if customMessage != "" {
 			response.Message = customMessage
 		} else {
+			logger.Println(string(debug.Stack()))
 			response.Message = fmt.Sprintf("%v", err)
 		}
 	}
